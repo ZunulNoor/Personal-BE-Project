@@ -1,0 +1,15 @@
+/backend
+│
+├── API/
+│     
+│   ├── User.js
+│   └── ChatMessage.js
+│
+├── controllers/
+│   └── MessageController.js
+│
+├── routes/
+│   └── messageRoutes.js
+│
+├── server.js
+└── ...
