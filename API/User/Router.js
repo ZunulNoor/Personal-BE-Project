@@ -24,6 +24,6 @@ router.post('/login', login)
 router.post('/verify-otp', verifyOTP);
 router.get('/get-all-users', authentication(['admin']), getAllUsers)
 router.get('/get-user-by-email', authentication(['admin']), getUserByEmail)
-router.get('/get-user-by-contact', authentication(['admin']), getUserByContact)
+router.get('/get-user-by-contact/:contact', authentication(['admin']), getUserByContact)
 
 module.exports = router
