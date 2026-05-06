@@ -17,6 +17,7 @@ const io = socketIO(server, {
 
 const userRouter = require('./API/User/Router');
 const messageRouter = require('./API/Messages/Router');
+const countryRouter = require('./API/Country/Router');
 const { handleSocketConnection } = require('./API/Messages/Controller');
 
 const port = 2500;
@@ -28,6 +29,7 @@ app.use(cors());
 // Routes
 app.use('/api', userRouter);
 app.use('/api', messageRouter);
+app.use('/api', countryRouter);
 
 app.get('/', (req, res) => {
   res.send('Chatting App API');

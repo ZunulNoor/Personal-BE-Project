@@ -4,10 +4,27 @@ const { hash, compare } = require("bcryptjs");
 const { sign, verify } = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const { validateRegister } = require("../validation/userValidation");
+const { validateLogin, validateOTP } = require("../validation/authValidation");
+const {
+  isValidEmail,
+  isValidContact,
+  parseContact,
+  validateAndParseContact,
+} = require("../utils/validationHelpers");
 require("dotenv").config();
 
+// Note: In a production app, database connection should ideally be handled at the application level
+// (e.g., in index.js) rather than connecting inside every controller function.
+
 const accCreation = async (req, res) => {
-  const { username, password, email, address, contact } = req.body;
+  const { errors, isValid } = validateRegister(req.body);
+
+  if (!isValid) {
+    return res.status(400).json({ message: "Validation failed", errors });
+  }
+
+  const { username, password, email, address, contact, country } = req.body;
 
   try {
     await connect(process.env.MONGO_URI);
@@ -15,30 +32,38 @@ const accCreation = async (req, res) => {
     const checkExisting = await User.exists({ email: email });
 
     if (checkExisting) {
-      res.status(208).json({
+      return res.status(409).json({
         message: "User Already Exists",
       });
-    } else {
-      await User.create({
-        username,
-        email,
-        address,
-        contact,
-        password: await hash(password, 11),
-      });
-      res.status(201).json({
-        message: "Account Created Successfully",
-      });
     }
+
+    await User.create({
+      username,
+      email,
+      address,
+      contact,
+      country,
+      password: await hash(password, 11),
+    });
+
+    return res.status(201).json({
+      message: "Account Created Successfully",
+    });
   } catch (error) {
-    res.json({
-      message: "Erorr Creating User",
-      error: error,
+    return res.status(500).json({
+      message: "Error Creating User",
+      error: error.message,
     });
   }
 };
 
 const login = async (req, res) => {
+  const { errors, isValid } = validateLogin(req.body);
+
+  if (!isValid) {
+    return res.status(400).json({ message: "Validation failed", errors });
+  }
+
   const { email, password } = req.body;
 
   try {
@@ -87,12 +112,20 @@ const login = async (req, res) => {
       tempToken,
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Login error", error });
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Login error", error: error.message });
   }
 };
 
 const verifyOTP = async (req, res) => {
+  const { errors, isValid } = validateOTP(req.body);
+
+  if (!isValid) {
+    return res.status(400).json({ message: "Validation failed", errors });
+  }
+
   const { otp } = req.body;
   const tempToken = req.headers.authorization?.split(" ")[1];
 
@@ -135,7 +168,9 @@ const verifyOTP = async (req, res) => {
       token: finalToken,
     });
   } catch (error) {
-    return res.status(500).json({ message: "OTP verification failed", error });
+    return res
+      .status(500)
+      .json({ message: "OTP verification failed", error: error.message });
   }
 };
 
@@ -143,11 +178,11 @@ const getAllUsers = async (req, res) => {
   try {
     await connect(process.env.MONGO_URI);
     const allusers = await User.find();
-    res.json({
+    return res.status(200).json({
       users: allusers,
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
@@ -155,25 +190,52 @@ const getAllUsers = async (req, res) => {
 
 const getUserByEmail = async (req, res) => {
   const { email } = req.query;
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({ message: "Valid email is required" });
+  }
+
   try {
     await connect(process.env.MONGO_URI);
     const user = await User.findOne({ email: email });
-    res.json({ user: user });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ user: user });
   } catch (error) {
-    res.status(400).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
 };
 
 const getUserByContact = async (req, res) => {
-  const { contact } = req.params;
+  let { contact } = req.params;
+
+  if (!contact) {
+    return res.status(400).json({
+      message: "Contact is required",
+    });
+  }
+
+  // ✅ normalize input ONLY (do not change DB)
+  if (!contact.startsWith("+")) {
+    contact = "+" + contact;
+  }
+
   try {
     await connect(process.env.MONGO_URI);
-    const user = await User.findOne({ contact: contact });
-    res.json({ user: user });
+
+    const user = await User.findOne({ contact });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({ user });
   } catch (error) {
-    res.status(400).json({
+    return res.status(500).json({
       message: error.message,
     });
   }

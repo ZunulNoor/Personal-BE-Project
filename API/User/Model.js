@@ -12,15 +12,19 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     address: {
         type: String,
     },
+    country: {
+        type: String,
+        required: true
+    },
     contact: {
         type: String,
-        require: true,
+        required: true,
     },
     role: {
         type: String,

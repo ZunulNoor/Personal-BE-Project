@@ -1,114 +1,63 @@
-# Full-Stack-Restaurant-App
-This README provides an overview of the E-commerce Website project, its features, and instructions for setting up and running the application.
+# Personal-BE-Project: Interactive Chat & User Management API
 
-### => [ Check It Out ](https://drab-deer-garb.cyclic.app)
+A robust Node.js Express backend specializing in secure user authentication, modular validation, and country-aware data handling.
 
-# Introduction
-- I have created restaurant app which is single vendor app. <br>
-- It has four categories of food Chinese, Desi, Fast Food and Italian.<br>
-- It also contains Sweets and Beverage.<br>
+## 🚀 What We Built Today
 
-## User Roles
+### ✅ 1. Advanced Country API
+- **Endpoint:** Created `GET /api/get-countries` in a dedicated `API/Country` module.
+- **Filtering Support:** Implemented multi-field filtering (AND logic) for:
+  - `countryName` (Partial/Case-insensitive)
+  - `shortCountryName` (ISO Code)
+  - `phoneCode` (Dialing prefix)
+  - `region` (Geographic area)
+- **Pagination:** Added `size` parameter to limit results.
+- **Strict Validation:** Implemented checks to reject unsupported query parameters and invalid size values.
 
-### Guest
+### 🔐 2. Security Improvements (Brute Force Protection)
+- **Problem:** Protected against brute force attacks where automated scripts attempt to guess passwords or OTP codes through repeated attempts.
+- **Solution:** Integrated `express-rate-limit` to implement request throttling.
+- **Rate Limiting:** 
+  - 5 requests per 1-minute window per IP.
+  - Custom error messaging for blocked users.
+- **Protected Routes:** Applied specifically to sensitive endpoints: `/login`, `/verify-otp`, and `/create-account`.
+- **Outcome:** Significantly reduced risk of credential guessing, OTP spamming, and automated account abuse.
 
-- Unauthenticated visitors who can browse products.
+### ⚙️ 3. Authentication Flow Improvements
+- **OTP System:** Robust OTP-based login system with temporary token verification before final JWT issuance.
+- **Password Standards:** Enforced complex password rules (Uppercase, Lowercase, Number, Special Character, Min 6 characters).
+- **Secure Hashing:** Continued use of `bcryptjs` for industry-standard password security.
 
-### User
+### 🌍 4. Country-Based Validation System
+- **Dynamic Phone Validation:** Phone formats are now validated against a comprehensive dataset of ~240 countries.
+- **E.164 Format:** Enforced strict international format (e.g., `+923433312614`) for database storage.
+- **Cross-Validation:** Automatically matches the phone dialing code and length against the user's selected country.
 
-- Authenticated customers who can:
-  - Add products to a cart
-  - Place orders
-  - Track orders
+### 📌 5. Validation System Upgrade
+- **Modular Design:** Centralized all validation logic into `API/validation/` and `API/utils/`.
+- **Invisible Character Detection:** Implemented detection and rejection of invisible Unicode characters (U+200B, etc.) to prevent security bypasses and data corruption.
+- **Granular Error Reporting:** Detailed feedback for each validation failure (e.g., specific missing password requirements).
 
-### Admin
+### 🧩 6. Architecture & Scalability
+- **Modular Structure:** Clean separation of concerns between Controllers, Routers, Models, Validation helpers, and Middlewares.
+- **Project Structure:**
+  - `API/Country`: Country-specific data and routes.
+  - `API/User`: User account and authentication logic.
+  - `API/middleware`: Reusable logic like authentication and rate limiting.
+  - `API/utils`: Helper functions and static datasets (countries.json).
+  - `API/validation`: Schema-specific validation layers.
 
-- Authenticated administrators with access to:
-  - Product management
-  - Order tracking
+---
 
-## Authentication
+## Technical Stack
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB (Mongoose)
+- **Security:** JWT, bcryptjs, express-rate-limit
+- **Communication:** Socket.io, Nodemailer
 
-- User registration and login are implemented using JWT for secure authentication.
-- Passwords are securely hashed and salted before storing them in the database for enhanced security.
-
-## Product Management
-
-- A user-friendly interface allows for:
-  - Adding
-  - Editing
-  - Deleting products.
-- Categories and brands are used to organize products.
-- Sorting and filtering options are provided for an improved user experience.
-
-## Image Uploading
-
-- Firebase is integrated for image storage.
-- Image uploading is supported for brands, categories, and products.
-- Multiple image uploads are implemented for products.
-
-## Order Placement
-
-- Users can:
-  - Add products to their cart
-  - Place orders
-  - A unique tracking ID is generated for each order.
-  - Order details are stored in the database for future reference.
-
-## Email Notifications
-
-- Admins are notified via email when an order is placed, including the tracking ID.
-- Nodemailer or a similar service is used to send emails.
-
-## User Order Tracking
-
-- Users can track their orders using the provided tracking ID.
-- A user-friendly interface is implemented to display order status and progress.
-
-
-# E-commerce App Technical Implementation
-## Frontend (React.js)
-
-- Components have been created for:
-  - User registration
-  - User login
-  - Product listing
-  - Cart management
-  - Order placement
-  - Order tracking
-
-- Routing is utilized to manage different user roles and navigation within the application.
-
-- Firebase SDK is integrated for image uploading, enabling users to upload product images easily.
-
-## Backend (Node.js and Express.js)
-
-- RESTful APIs have been developed for various functionalities:
-  - User authentication
-  - Product management
-  - Order placement
-  - Order tracking
-
-- JWT (JSON Web Tokens) are used for token-based authentication, enhancing security.
-
-## Database (MongoDB)
-
-- The database schema has been designed for key entities, including:
-  - Users
-  - Menu
-  - Orders
-  - Categories
-
-## Firebase Integration
-
-- A Firebase project has been set up to handle image storage.
-
-- Firebase SDK is integrated into the backend to manage image uploads seamlessly.
-
-## Email Notification
-
-- Nodemailer or a similar library is used to send email notifications to admin and users.
-
-- Templates for order confirmation and tracking emails have been created, ensuring effective communication with users.
-
-
+## Development Setup
+1. Clone the repository.
+2. Run `npm install`.
+3. Configure `.env` with `MONGO_URI`, `SECRET_KEY`, `MAIL_USER`, and `MAIL_PASS`.
+4. Run `npm run dev` to start the development server.

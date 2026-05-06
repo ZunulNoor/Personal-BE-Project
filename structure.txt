@@ -1,15 +1,43 @@
-/backend
-│
-├── API/
-│     
-│   ├── User.js
-│   └── ChatMessage.js
-│
-├── controllers/
-│   └── MessageController.js
-│
-├── routes/
-│   └── messageRoutes.js
-│
-├── server.js
-└── ...
+Personal-BE-Project
+|   .env
+|   .gitignore
+|   index.js
+|   package-lock.json
+|   package.json
+|   README.md
+|   structure.txt
+|   vercel.json
+|
++---API
+|   +---Country
+|   |       Controller.js
+|   |       Router.js
+|   |
+|   +---mailer
+|   |       Controller.js
+|   |       Router.js
+|   |
+|   +---Messages
+|   |       Controller.js
+|   |       Model.js
+|   |       Router.js
+|   |
+|   +---middleware
+|   |       authentication.js
+|   |       rateLimiter.js
+|   |
+|   +---User
+|   |       Controller.js
+|   |       Model.js
+|   |       Router.js
+|   |
+|   +---utils
+|   |       countries.json
+|   |       validationHelpers.js
+|   |
+|   \---validation
+|           authValidation.js
+|           userValidation.js
+|
+\---Learning
+        software-architecture-comparison.md
